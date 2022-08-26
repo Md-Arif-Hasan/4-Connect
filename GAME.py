@@ -12,18 +12,22 @@ WHITE = (240, 240, 240)
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
-GAME_OVER = False
 SQUARE_SIZE = 60
 RADIUS = 27  # int(SQUARE_SIZE / 2 - 3)
 
 PLAYER = 0
 AI = 1
 
+
 EMPTY = 0
 PLAYER_PIECE = 1
 AI_PIECE = 2
 
 WINDOW_LENGTH = 4
+
+
+GAME_OVER = False
+TURN = 0
 
 
 def create_board():
@@ -71,7 +75,9 @@ def draw_board_ball(board, c, r):
 def draw_board(board):
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
+            # game board draw without player's ball
             draw_board_grid(c, r)
+            # draw player's ball
             draw_board_ball(board, c, r)
 
     pygame.display.update()
@@ -126,9 +132,65 @@ def winning_state(board, piece):
         return False
 
 
-def game_paly(board):
-    # baki
-    print("Game Start")
+def mouse_movement(event):
+    pygame.draw.rect(screen, BLACK, (0, 0, boardWidth, SQUARE_SIZE))
+    posX = event.pos[0]
+    pygame.draw.circle(screen, RED, (posX, int(SQUARE_SIZE / 2)), RADIUS)
+
+
+def winner(WHO):
+    if WHO == AI_PIECE:
+        message = "GG, Computer win!!"
+    else:
+        message = "GG, You Win!!"
+
+    label = font.render(message, 1, RED)
+    screen.blit(label, (40, 10))
+    return True
+
+
+def take_a_move(board, col, TURN, GAME_OVER, WHO):
+    row = get_next_open_row(board, col)
+    drop_piece(board, row, col, WHO)
+
+    if winning_state(board, WHO):
+        GAME_OVER = winner(WHO)
+
+    print_board(board)
+    draw_board(board)
+
+    return TURN ^ 1, GAME_OVER
+
+
+def mouse_click(event, TURN, GAME_OVER):
+    pygame.draw.rect(screen, BLACK, (0, 0, boardWidth, SQUARE_SIZE))
+    posX = event.pos[0]
+    col = int(math.floor(posX / SQUARE_SIZE))
+
+    if is_valid_location(board, col):
+        TURN, GAME_OVER = take_a_move(board, col, TURN, GAME_OVER, PLAYER_PIECE)
+
+    return TURN, GAME_OVER
+
+
+def game_play(board, TURN, GAME_OVER):
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+        if TURN == PLAYER:
+            if event.type == pygame.MOUSEMOTION:
+                mouse_movement(event)
+            pygame.display.update()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                TURN, GAME_OVER = mouse_click(event, TURN, GAME_OVER)
+
+        elif TURN == AI:
+            col = random.randint(0, COLUMN_COUNT-1)
+            if is_valid_location(board, col):
+                TURN, GAME_OVER = take_a_move(board, col, TURN, GAME_OVER, AI_PIECE)
+
+    return TURN, GAME_OVER
 
 
 board = create_board()
@@ -143,8 +205,10 @@ boardHeight = (ROW_COUNT + 1) * SQUARE_SIZE
 screen = pygame.display.set_mode((boardWidth, boardHeight))
 draw_board(board)
 
-font = pygame.font.SysFont("ubuntu", 75)
-
+font = pygame.font.SysFont("ubuntu", 35)
 TURN = random.randint(PLAYER, AI)
 
-game_paly(board)
+while not GAME_OVER:
+    TURN, GAME_OVER = game_play(board, TURN, GAME_OVER)
+
+pygame.time.wait(3000)
