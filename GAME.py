@@ -172,6 +172,93 @@ def mouse_click(event, TURN, GAME_OVER):
 
     return TURN, GAME_OVER
 
+def get_mid_grid(board):
+    array = list()
+    for i in range(ROW_COUNT):
+        #print(i)
+        array.append((board[i][COLUMN_COUNT//2]))
+    return array
+
+def four_grid_value(consecutive_four_grid, piece):
+    value = 0
+
+    if piece == PLAYER_PIECE:
+        opp_piece = AI_PIECE
+    else:
+        opp_piece = PLAYER_PIECE
+    if consecutive_four_grid.count(piece) == 4:
+        value+=1000
+    elif consecutive_four_grid.count(piece) == 3 and consecutive_four_grid.count(EMPTY) == 1:
+        value+=10
+    elif consecutive_four_grid.count(piece) == 2 and consecutive_four_grid.count(EMPTY) == 2:
+        value+=4
+    if consecutive_four_grid.count(opp_piece) == 3 and consecutive_four_grid.count(EMPTY) == 1:
+        value-=8
+    return value
+
+
+
+def get_horizontal_value(board,piece):
+    for r in range(ROW_COUNT):
+        row_array = [int(i) for i in list(board[r,:])]
+        for c in range(COLUMN_COUNT-3):
+            consecutive_four_grid = row_array[c:c+4]
+            return four_grid_value(consecutive_four_grid, piece)
+
+def get_vertical_value(board,piece):
+    
+    for c in range(COLUMN_COUNT):
+        col_array = [int(i) for i in list(board[:,c])]
+        for r in range(ROW_COUNT-3):
+            consecutive_four_grid = col_array[r:r+4]
+            return four_grid_value(consecutive_four_grid, piece)
+    
+    
+
+def get_positive_diagonal_value(board,piece):
+    for r in range(ROW_COUNT-3):
+        for c in range(COLUMN_COUNT-3):
+            consecutive_four_grid = [board[r+i][c+i] for i in range(4)]
+            return four_grid_value(consecutive_four_grid, piece)
+    
+
+
+def get_negative_diagonal_value(board,piece):
+    
+    for r in range(ROW_COUNT-3):
+        for c in range(COLUMN_COUNT-3):
+            consecutive_four_grid = [board[r+3-i][c+i] for i in range(4)]
+            return four_grid_value(consecutive_four_grid, piece)
+    
+
+def moveable_colums(board):
+	columns = []
+	for col in range(COLUMN_COUNT):
+		if is_valid_location(board, col):
+			columns.append(col)
+	return columns
+
+
+def is_no_move_available(board):
+    return winning_state(board, PLAYER_PIECE) or winning_state(board, AI_PIECE) or len(moveable_colums(board)) == 0
+
+
+
+def heurestics_function(board,piece):
+    value = 0
+    
+    mid_grid = get_mid_grid(board)
+    #print("mid grid")
+    #print(mid_grid)
+    #print(mid_grid.count(piece))
+    value += mid_grid.count(piece)*3
+    
+    value += get_horizontal_value(board,piece)
+    value += get_vertical_value(board,piece)
+    value += get_positive_diagonal_value(board,piece)
+    value += get_negative_diagonal_value(board,piece)
+    return value
+    
 
 def game_play(board, TURN, GAME_OVER):
     for event in pygame.event.get():
