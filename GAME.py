@@ -17,13 +17,6 @@ def print_board(board):
 
 
 
-
-
-
-
-
-
-
 def draw_board_grid(c, r):
     AI_move.associate_modules.pygame.draw.rect(screen, AI_move.associate_modules.WHITE, (c * AI_move.associate_modules.SQUARE_SIZE, boardHeight - int(r * AI_move.associate_modules.SQUARE_SIZE + AI_move.associate_modules.SQUARE_SIZE), AI_move.associate_modules.SQUARE_SIZE, AI_move.associate_modules.SQUARE_SIZE))
     AI_move.associate_modules.pygame.draw.circle(screen, AI_move.associate_modules.BLACK, (int(c * AI_move.associate_modules.SQUARE_SIZE + AI_move.associate_modules.SQUARE_SIZE / 2), boardHeight - int(r * AI_move.associate_modules.SQUARE_SIZE + AI_move.associate_modules.SQUARE_SIZE / 2)), AI_move.associate_modules.RADIUS)
@@ -108,24 +101,34 @@ def game_play(board, TURN, GAME_OVER):
                 TURN, GAME_OVER = take_a_move(board, col, TURN, GAME_OVER, AI_move.associate_modules.AI_PIECE)
 
     return TURN, GAME_OVER
-
-
+    
 board = create_board()
-flip_board(board)
-print_board(board)
-
 AI_move.associate_modules.pygame.init()
-
+    
 boardWidth = AI_move.associate_modules.COLUMN_COUNT * AI_move.associate_modules.SQUARE_SIZE
 boardHeight = (AI_move.associate_modules.ROW_COUNT + 1) * AI_move.associate_modules.SQUARE_SIZE
 
 screen = AI_move.associate_modules.pygame.display.set_mode((boardWidth, boardHeight))
-draw_board(board)
-
 font = AI_move.associate_modules.pygame.font.SysFont("ubuntu", 35)
-AI_move.associate_modules.TURN = AI_move.associate_modules.random.randint(AI_move.associate_modules.PLAYER, AI_move.associate_modules.AI)
 
-while not AI_move.associate_modules.GAME_OVER:
-   AI_move.associate_modules.TURN, AI_move.associate_modules.GAME_OVER = game_play(board, AI_move.associate_modules.TURN, AI_move.associate_modules.GAME_OVER)
 
-AI_move.associate_modules.pygame.time.wait(10000)
+
+def main():
+
+    #board = create_board()
+
+    flip_board(board)
+    print_board(board)
+
+   
+
+   
+    draw_board(board)
+
+    AI_move.associate_modules.TURN = AI_move.associate_modules.random.randint(AI_move.associate_modules.PLAYER, AI_move.associate_modules.AI)
+
+    while not AI_move.associate_modules.GAME_OVER:
+        AI_move.associate_modules.TURN, AI_move.associate_modules.GAME_OVER = game_play(board, AI_move.associate_modules.TURN, AI_move.associate_modules.GAME_OVER)
+
+    AI_move.associate_modules.pygame.time.wait(1000)
+
